@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, Vie
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Field } from '../components/Field';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import { colors, spacing } from '../theme';
 import { RootStackParamList } from '../types';
 import { validateCredentials } from '../utils/validators';
@@ -14,7 +14,7 @@ import { validateCredentials } from '../utils/validators';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
-  const { login } = useAuth();
+  const login = useAuthStore((s) => s.login);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<string[]>([]);

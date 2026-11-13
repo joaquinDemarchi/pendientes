@@ -2,13 +2,13 @@
 
 
 import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import { cancelReminder, scheduleTaskReminder } from '../notifications/notifications';
 import { traerTareas, guardarTareas } from '../storage/storage';
 import { Task } from '../types';
 
 export function useTasks() {
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
   const username = user ?? '';
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);

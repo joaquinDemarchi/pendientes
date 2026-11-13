@@ -8,7 +8,7 @@ import { ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, View } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { TaskCard } from '../components/TaskCard';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import { useTasks } from '../hooks/useTasks';
 import { colors, spacing } from '../theme';
 import { RootStackParamList, Task } from '../types';
@@ -16,7 +16,8 @@ import { RootStackParamList, Task } from '../types';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
-  const { user, logout } = useAuth();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const { tasks, loading, reload, toggleTask, deleteTask } = useTasks();
 
   // Cada vez que volvemos a esta pantalla recargamos la lista desde AsyncStorage.

@@ -3,7 +3,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -14,7 +14,7 @@ import { RootStackParamList } from '../types';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
-  const { user } = useAuth();
+  const user = useAuthStore((s) => s.user);
 
   return (
     <NavigationContainer>

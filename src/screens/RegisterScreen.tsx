@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 import { Field } from '../components/Field';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { useAuth } from '../context/AuthContext';
+import { useAuthStore } from '../store/authStore';
 import { colors, spacing } from '../theme';
 import { RootStackParamList } from '../types';
 import { validateRegister } from '../utils/validators';
@@ -14,7 +14,7 @@ import { validateRegister } from '../utils/validators';
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
-  const { register } = useAuth();
+  const register = useAuthStore((s) => s.register);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
