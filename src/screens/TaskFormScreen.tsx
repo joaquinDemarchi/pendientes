@@ -3,26 +3,38 @@
 // Si llega una tarea por parametro se edita sino alta.
 
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Field } from '../components/Field';
 import { PrimaryButton } from '../components/PrimaryButton';
-import { useTasks } from '../hooks/useTasks';
 import { colors, radius, spacing } from '../theme';
 import { RootStackParamList } from '../types';
 import { REMINDER_OPTIONS } from '../utils/tasks';
 import { validaTituloTarea } from '../utils/validators';
+import { useBorradorStore } from '../store/borradorStore';
+import { TaskInput, useTasksStore } from '../store/tasksStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TaskForm'>;
 
 export default function TaskFormScreen({ navigation, route }: Props) {
   const tareaEditandose = route.params?.task; 
-  const { addTask, updateTask, deleteTask } = useTasks();
+  const addTask = useTasksStore((s) => s.addTask);
+  const updateTask = useTasksStore((s) => s.updateTask);
+  const deleteTask = useTasksStore((s) => s.deleteTask);
+
+  const photoUri = useBorradorStore((s) => s.photoUri);
+  const location = useBorradorStore((s) => s.location);
+  const contact = useBorradorStore((s) => s.contact);
+  const iniciarBorrador = useBorradorStore((s) => s.iniciar);
 
   const [title, setTitle] = useState(tareaEditandose?.title ?? '');
   const [reminder, setReminder] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    iniciarBorrador(tareaEditandose);
+  }, [tareaEditandose, iniciarBorrador]);
 
   const handleSave = async () => {
     const validacion = validaTituloTarea(title);
@@ -31,10 +43,11 @@ export default function TaskFormScreen({ navigation, route }: Props) {
       return;
     }
     setSaving(true);
+    const data: TaskInput = { title, reminderSeconds: reminder, photoUri, location, contact };
     if (tareaEditandose) {
-      await updateTask(tareaEditandose.id, title, reminder);
+      await updateTask(tareaEditandose.id, data);
     } else {
-      await addTask(title, reminder);
+      await addTask(data);
     }
     setSaving(false);
     navigation.goBack(); // volvemos a Home, que recarga la lista sola

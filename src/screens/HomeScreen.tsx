@@ -3,13 +3,13 @@
 
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback } from 'react';
+import React, { useEffect  } from 'react';
 import { ActivityIndicator, Alert, Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { TaskCard } from '../components/TaskCard';
 import { useAuthStore } from '../store/authStore';
-import { useTasks } from '../hooks/useTasks';
+import { useTasksStore } from '../store/tasksStore';
 import { colors, spacing } from '../theme';
 import { RootStackParamList, Task } from '../types';
 
@@ -18,14 +18,23 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export default function HomeScreen({ navigation }: Props) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
-  const { tasks, loading, reload, toggleTask, deleteTask } = useTasks();
+  const tasks = useTasksStore((s) => s.tasks);
+  const loading = useTasksStore((s) => s.loading);
+  const loadTasks = useTasksStore((s) => s.loadTasks);
+  const toggleTask = useTasksStore((s) => s.toggleTask);
+  const deleteTask = useTasksStore((s) => s.deleteTask);
+  const clear = useTasksStore((s) => s.clear);
+
 
   // Cada vez que volvemos a esta pantalla recargamos la lista desde AsyncStorage.
-  useFocusEffect(
-    useCallback(() => {
-      reload();
-    }, [reload])
-  );
+  useEffect(() => {
+    loadTasks();
+  }, [user, loadTasks]);
+
+  const salir = () => {
+    clear();
+    logout();
+  };
 
   // Confirmación antes de borrar 
   const ConfElim = (id: string) => {
@@ -52,7 +61,7 @@ export default function HomeScreen({ navigation }: Props) {
           <Text style={styles.hello}>Hola, {user}</Text>
           <Text style={styles.title}>Pendientes</Text>
         </View>
-        <Button title="Salir" color={colors.lavenderText} onPress={logout} />
+        <Button title="Salir" color={colors.lavenderText} onPress={salir} />
       </View>
 
       <FlatList
