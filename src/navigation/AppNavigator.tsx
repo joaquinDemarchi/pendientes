@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import TaskFormScreen from '../screens/TaskFormScreen';
+import CameraScreen from '../screens/CameraScreen';
 import { colors } from '../theme';
 import { RootStackParamList } from '../types';
 
@@ -29,7 +30,7 @@ export default function AppNavigator() {
         }}
       >
         {user ? (
-          // Con sesióo: solo existen estas pantallas 
+          // Con sesion: solo existen estas pantallas 
           <>
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
             <Stack.Screen
@@ -38,6 +39,11 @@ export default function AppNavigator() {
               options={({ route }) => ({
                 title: route.params?.task ? 'Editar tarea' : 'Nueva tarea',
               })}
+            />
+            <Stack.Screen
+              name="Camera"
+              component={CameraScreen}
+              options={{ headerShown: false, animation: 'slide_from_bottom' }}
             />
           </>
         ) : (

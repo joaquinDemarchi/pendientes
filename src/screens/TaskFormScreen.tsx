@@ -13,6 +13,11 @@ import { REMINDER_OPTIONS } from '../utils/tasks';
 import { validaTituloTarea } from '../utils/validators';
 import { useBorradorStore } from '../store/borradorStore';
 import { TaskInput, useTasksStore } from '../store/tasksStore';
+import * as ImagePicker from 'expo-image-picker';
+import { Polaroid } from '../components/Polaroid';
+import { pedirPermiso } from '../permissions/permissions';
+import { Etiqueta } from '../components/Etiqueta';
+import { abrirEnMapa, formatearCoords, obtenerUbicacion, textoUbicacion } from '../location/location';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TaskForm'>;
 
@@ -31,6 +36,11 @@ export default function TaskFormScreen({ navigation, route }: Props) {
   const [reminder, setReminder] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  const setPhoto = useBorradorStore((s) => s.setPhoto);
+
+  const setLocation = useBorradorStore((s) => s.setLocation);
+  const [buscandoUbicacion, setBuscandoUbicacion] = useState(false);
 
   useEffect(() => {
     iniciarBorrador(tareaEditandose);
@@ -67,6 +77,23 @@ export default function TaskFormScreen({ navigation, route }: Props) {
       },
     ]);
   };
+
+  const elegirDeGaleria = async () => {
+  if (!(await pedirPermiso('galeria'))) return;
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ['images'],
+    allowsEditing: true, // deja recortar
+    aspect: [1, 1],      // cuadrada, como la polaroid
+    quality: 0.6,
+  });
+  }
+
+  const usarMiUbicacion = async () => {
+  setBuscandoUbicacion(true);
+  const loc = await obtenerUbicacion();
+  setBuscandoUbicacion(false);
+  if (loc) setLocation(loc);
+};
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
@@ -105,6 +132,48 @@ export default function TaskFormScreen({ navigation, route }: Props) {
           ? 'Al guardar, el aviso anterior se reemplaza por el que elijas acá.'
           : 'Te llega una notificación cuando se cumple el tiempo.'}
       </Text>
+
+      <Text style={[styles.label, styles.section]}>Foto</Text>
+      {photoUri && (
+        <View style={styles.photoBox}>
+          <Polaroid uri={photoUri} size={170} />
+          <TouchableOpacity onPress={() => setPhoto(null)}>
+            <Text style={styles.quitar}>Quitar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <View style={styles.chips}>
+        <TouchableOpacity style={styles.chip} onPress={() => navigation.navigate('Camera')}>
+          <Text style={styles.chipText}>Sacar foto</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.chip} onPress={elegirDeGaleria}>
+          <Text style={styles.chipText}>Elegir de la galería</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={[styles.label, styles.section]}>Lugar</Text>
+{location && (
+  <View style={styles.adjunto}>
+    <Etiqueta texto={textoUbicacion(location)} detalle={formatearCoords(location)} color="sky">
+      <View style={styles.etiquetaAcciones}>
+        <TouchableOpacity onPress={() => abrirEnMapa(location)}>
+          <Text style={styles.verMapa}>Ver en mapa</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setLocation(null)}>
+          <Text style={styles.quitar}>Quitar</Text>
+        </TouchableOpacity>
+      </View>
+    </Etiqueta>
+  </View>
+)}
+<View style={styles.chips}>
+  <TouchableOpacity style={styles.chip} onPress={usarMiUbicacion} disabled={buscandoUbicacion}>
+    <Text style={styles.chipText}>
+      {buscandoUbicacion ? 'Buscando…' : location ? 'Actualizar ubicación' : 'Usar mi ubicación actual'}
+    </Text>
+  </TouchableOpacity>
+</View>
 
       <View style={styles.buttons}>
         <PrimaryButton
@@ -145,4 +214,10 @@ const styles = StyleSheet.create({
   chipTextSelected: { color: colors.peachText, fontWeight: '600' },
   hint: { fontSize: 13, color: colors.textSoft, marginTop: spacing.sm },
   buttons: { marginTop: spacing.xl, gap: spacing.sm },
+  section: { marginTop: spacing.lg },
+  photoBox: { flexDirection: 'row', alignItems: 'flex-end', gap: spacing.md, marginBottom: spacing.md, paddingLeft: spacing.xs },
+  quitar: { fontSize: 13, fontWeight: '600', color: colors.roseText },
+  adjunto: { marginBottom: spacing.md },
+  etiquetaAcciones: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
+  verMapa: { fontSize: 13, fontWeight: '600', color: colors.skyText, textDecorationLine: 'underline' },
 });
