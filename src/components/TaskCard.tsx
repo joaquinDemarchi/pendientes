@@ -5,6 +5,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, radius, spacing } from '../theme';
 import { Task } from '../types';
 import { formatReminder } from '../utils/tasks';
+import { textoUbicacion } from '../location/location';
+import { Etiqueta } from './Etiqueta';
+import { Polaroid } from './Polaroid';
 
 interface Props {
   task: Task;
@@ -35,6 +38,14 @@ export function TaskCard({ task, onToggle, onEdit, onDelete }: Props) {
           <Text style={styles.reminder}>{formatReminder(task.remindAt)}</Text>
         )}
 
+        {(task.location || task.contact || task.calendarEventId) && (
+          <View style={styles.tags}>
+            {task.location && <Etiqueta texto={textoUbicacion(task.location)} color="sky" chica />}
+            {task.contact && <Etiqueta texto={task.contact.name} color="lavender" chica inclinacion={-1} />}
+            {task.calendarEventId && <Text style={styles.agendada}>En el calendario</Text>}
+          </View>
+        )}
+
         <View style={styles.actions}>
           <TouchableOpacity testID={`edit-${task.id}`} onPress={() => onEdit(task)}>
             <Text style={[styles.action, styles.edit]}>Editar</Text>
@@ -43,6 +54,8 @@ export function TaskCard({ task, onToggle, onEdit, onDelete }: Props) {
             <Text style={[styles.action, styles.remove]}>Eliminar</Text>
           </TouchableOpacity>
         </View>
+
+        {task.photoUri && <Polaroid uri={task.photoUri} size={56} inclinacion={4} />}
       </View>
     </View>
   );
@@ -92,4 +105,6 @@ const styles = StyleSheet.create({
   action: { fontSize: 13, fontWeight: '600' },
   edit: { color: colors.skyText },
   remove: { color: colors.roseText },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginTop: 8 },
+  agendada: { fontSize: 12, color: colors.textSoft, fontStyle: 'italic' },
 });

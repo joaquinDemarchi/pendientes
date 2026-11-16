@@ -9,6 +9,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import TaskFormScreen from '../screens/TaskFormScreen';
 import CameraScreen from '../screens/CameraScreen';
+import ContactPickerScreen from '../screens/ContactPickerScreen';
 import { colors } from '../theme';
 import { RootStackParamList } from '../types';
 
@@ -44,6 +45,11 @@ export default function AppNavigator() {
               name="Camera"
               component={CameraScreen}
               options={{ headerShown: false, animation: 'slide_from_bottom' }}
+            />
+            <Stack.Screen
+              name="ContactPicker"
+              component={ContactPickerScreen}
+              options={{ title: 'Elegir responsable' }}
             />
           </>
         ) : (
