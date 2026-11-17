@@ -69,4 +69,4 @@ Escanear el QR con Expo Go. Si la red no deja conectar: `npx expo start --tunnel
 
 ## Video demo
 
-[Ver demo en YouTube](https://www.youtube.com)
+[Ver demo en YouTube](https://youtube.com/shorts/23rRFzDq6f0?si=-UCW5qjKGukgTETP)
